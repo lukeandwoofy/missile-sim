@@ -1,0 +1,16 @@
+{
+  "name": "Strategic Missile Command",
+  "short_name": "MissileSim",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0b1113",
+  "theme_color": "#ff3b3b",
+  "description": "A missile launch simulation with coordinate targeting and mission control.",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
