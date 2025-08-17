@@ -6,7 +6,7 @@ body {
 }
 
 .console {
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
   border: 2px solid #2f4f4f;
   padding: 20px;
@@ -24,7 +24,7 @@ label {
   margin-top: 10px;
 }
 
-input, button {
+input, select, button {
   margin: 5px 0;
   padding: 8px;
   background-color: #0f1a1d;
@@ -41,7 +41,7 @@ button:hover {
   background-color: #25474f;
 }
 
-.auth, .controls, .status {
+.auth, .controls, .status, .log {
   margin-bottom: 20px;
 }
 
@@ -59,10 +59,10 @@ button:hover {
   color: #ffce6b;
 }
 
-@keyframes flash {
-  0% { background: red; }
-  50% { background: yellow; }
-  100% { background: red; }
+#map {
+  height: 300px;
+  margin-top: 10px;
+  border: 2px solid #25474f;
 }
 
 .flash-bar {
@@ -70,4 +70,10 @@ button:hover {
   height: 10px;
   background: red;
   animation: flash 1s infinite;
+}
+
+@keyframes flash {
+  0% { background: red; }
+  50% { background: yellow; }
+  100% { background: red; }
 }
