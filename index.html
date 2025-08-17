@@ -2,25 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Missile Launch Console</title>
+  <title>Strategic Missile Command</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="manifest.json">
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js")
-      .then(() => console.log("Service Worker registered"));
-  }
-</script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
 </head>
 <body>
   <div class="console">
     <h1>STRATEGIC MISSILE COMMAND</h1>
 
-    <div class="auth">
-      <label>Access Code:</label>
-      <input type="password" id="accessCode" placeholder="Enter code">
-      <button onclick="authenticate()">Enter</button>
-      <span id="authStatus">LOCKED</span>
+    <button id="loginBtn">Sign in with Google</button>
+    <div id="userInfo"></div>
+
+    <div class="role" style="display:none;">
+      <label>Select Role:</label>
+      <select id="roleSelect">
+        <option value="President">President</option>
+        <option value="General">General</option>
+        <option value="Commander">Commander</option>
+      </select>
+      <button onclick="setRole()">Set Role</button>
+      <p id="roleDisplay"></p>
     </div>
 
     <div class="controls" style="display:none;">
@@ -56,8 +60,21 @@
       <h2>Mission Log</h2>
       <ul id="missionLog"></ul>
     </div>
+
+    <div class="chat" style="display:none;">
+      <h2>Command Chat</h2>
+      <div id="messages"></div>
+      <input type="text" id="messageInput" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
   </div>
 
   <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("Service Worker registered"));
+    }
+  </script>
 </body>
 </html>
