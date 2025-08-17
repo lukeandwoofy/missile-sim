@@ -1,6 +1,4 @@
 let authenticated = false;
-let selectedLat = null;
-let selectedLon = null;
 let countdownInterval = null;
 
 function authenticate() {
@@ -12,30 +10,19 @@ function authenticate() {
     document.querySelector(".controls").style.display = "block";
     document.querySelector(".status").style.display = "block";
     document.querySelector(".log").style.display = "block";
-    initMap();
   } else {
     alert("Invalid code.");
   }
-}
-
-function initMap() {
-  const map = L.map('map').setView([20, 0], 2);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data © OpenStreetMap contributors'
-  }).addTo(map);
-
-  map.on('click', function(e) {
-    selectedLat = e.latlng.lat.toFixed(6);
-    selectedLon = e.latlng.lng.toFixed(6);
-    document.getElementById("selectedCoords").textContent = `${selectedLat}, ${selectedLon}`;
-  });
 }
 
 function launchMissile() {
   if (!authenticated) return alert("Access denied.");
   const armed = document.getElementById("armToggle").checked;
   if (!armed) return alert("System not armed.");
-  if (!selectedLat || !selectedLon) return alert("Select target coordinates.");
+
+  const lat = document.getElementById("lat").value;
+  const lon = document.getElementById("lon").value;
+  if (!lat || !lon) return alert("Enter valid coordinates.");
 
   const missileType = document.getElementById("missileType").value;
 
@@ -43,8 +30,8 @@ function launchMissile() {
   document.getElementById("lastAction").textContent = "LAUNCH";
   document.getElementById("timestamp").textContent = new Date().toLocaleString();
 
-  logMission("LAUNCH", missileType, selectedLat, selectedLon);
-  startCountdown(missileType);
+  logMission("LAUNCH", missileType, lat, lon);
+  startCountdown(missileType, lat, lon);
 }
 
 function abortMission() {
@@ -53,10 +40,12 @@ function abortMission() {
   document.getElementById("lastAction").textContent = "ABORT";
   document.getElementById("timestamp").textContent = new Date().toLocaleString();
   document.getElementById("launchAnimation").innerHTML = "";
-  logMission("ABORT", "", selectedLat, selectedLon);
+  const lat = document.getElementById("lat").value;
+  const lon = document.getElementById("lon").value;
+  logMission("ABORT", "", lat, lon);
 }
 
-function startCountdown(missileType) {
+function startCountdown(missileType, lat, lon) {
   let timeLeft = 10;
   const anim = document.getElementById("launchAnimation");
   anim.innerHTML = `<p>Countdown initiated for ${missileType} missile...</p><p id="countdown">${timeLeft}</p>`;
@@ -66,15 +55,15 @@ function startCountdown(missileType) {
     document.getElementById("countdown").textContent = timeLeft;
     if (timeLeft <= 0) {
       clearInterval(countdownInterval);
-      executeLaunch(missileType);
+      executeLaunch(missileType, lat, lon);
     }
   }, 1000);
 }
 
-function executeLaunch(missileType) {
+function executeLaunch(missileType, lat, lon) {
   const anim = document.getElementById("launchAnimation");
   anim.innerHTML = `
-    <p>🚀 ${missileType} missile launched to:<br><strong>${selectedLat}, ${selectedLon}</strong></p>
+    <p>🚀 ${missileType} missile launched to:<br><strong>${lat}, ${lon}</strong></p>
     <div class="flash-bar"></div>
     <p>💥 Impact simulated. Mission complete.</p>
   `;
