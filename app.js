@@ -16,20 +16,56 @@ const db = firebase.database();
 let currentUser = null;
 let currentRole = null;
 
-// Google Sign-In
-document.getElementById("loginBtn").addEventListener("click", () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(provider)
-    .then(result => {
-      currentUser = result.user;
-      document.getElementById("userInfo").innerText = `Welcome, ${currentUser.displayName}`;
+// Sign Up
+function signUp() {
+  const name = document.getElementById("signupName").value;
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+
+  if (!name || !email || !password) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      const uid = userCredential.user.uid;
+      currentUser = userCredential.user;
+
+      // Save display name in database
+      db.ref("users/" + uid).set({ name });
+
+      document.getElementById("userInfo").innerText = `Welcome, ${name}`;
       showPanels();
     })
     .catch(error => {
-      console.error("Sign-in error:", error);
-      alert("Sign-in failed. Check console for details.");
+      console.error("Sign-up error:", error);
+      alert(error.message);
     });
-});
+}
+
+// Log In
+function logIn() {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      const uid = userCredential.user.uid;
+      currentUser = userCredential.user;
+
+      // Fetch display name
+      db.ref("users/" + uid).once("value").then(snapshot => {
+        const name = snapshot.val().name;
+        document.getElementById("userInfo").innerText = `Welcome, ${name}`;
+        showPanels();
+      });
+    })
+    .catch(error => {
+      console.error("Login error:", error);
+      alert(error.message);
+    });
+}
 
 // Show UI panels
 function showPanels() {
