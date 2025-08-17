@@ -15,9 +15,21 @@
   <div class="console">
     <h1>STRATEGIC MISSILE COMMAND</h1>
 
-    <!-- Google Sign-In -->
-    <button id="loginBtn">Sign in with Google</button>
-    <div id="userInfo"></div>
+<!-- Authentication -->
+<div id="authSection">
+  <h2>Sign Up</h2>
+  <input type="text" id="signupName" placeholder="Your Name">
+  <input type="email" id="signupEmail" placeholder="Email">
+  <input type="password" id="signupPassword" placeholder="Password">
+  <button onclick="signUp()">Sign Up</button>
+
+  <h2>Log In</h2>
+  <input type="email" id="loginEmail" placeholder="Email">
+  <input type="password" id="loginPassword" placeholder="Password">
+  <button onclick="logIn()">Log In</button>
+
+  <div id="userInfo"></div>
+</div>
 
     <!-- Role Selection -->
     <div class="role" style="display:none;">
