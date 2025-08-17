@@ -5,17 +5,21 @@
   <title>Strategic Missile Command</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="manifest.json">
-  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
+
+  <!-- Firebase SDK (compat versions for browser use) -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database-compat.js"></script>
 </head>
 <body>
   <div class="console">
     <h1>STRATEGIC MISSILE COMMAND</h1>
 
+    <!-- Google Sign-In -->
     <button id="loginBtn">Sign in with Google</button>
     <div id="userInfo"></div>
 
+    <!-- Role Selection -->
     <div class="role" style="display:none;">
       <label>Select Role:</label>
       <select id="roleSelect">
@@ -27,6 +31,7 @@
       <p id="roleDisplay"></p>
     </div>
 
+    <!-- Launch Controls -->
     <div class="controls" style="display:none;">
       <label>Missile Type:</label>
       <select id="missileType">
@@ -47,6 +52,7 @@
       <button onclick="abortMission()">ABORT</button>
     </div>
 
+    <!-- Status Panel -->
     <div class="status" style="display:none;">
       <h2>Status Panel</h2>
       <p><strong>Armed:</strong> <span id="armedStatus">false</span></p>
@@ -54,13 +60,16 @@
       <p><strong>Timestamp:</strong> <span id="timestamp">—</span></p>
     </div>
 
+    <!-- Launch Animation -->
     <div id="launchAnimation"></div>
 
+    <!-- Mission Log -->
     <div class="log" style="display:none;">
       <h2>Mission Log</h2>
       <ul id="missionLog"></ul>
     </div>
 
+    <!-- Real-Time Chat -->
     <div class="chat" style="display:none;">
       <h2>Command Chat</h2>
       <div id="messages"></div>
@@ -69,7 +78,10 @@
     </div>
   </div>
 
+  <!-- App Logic -->
   <script src="app.js"></script>
+
+  <!-- Service Worker Registration -->
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js")
