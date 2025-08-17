@@ -1,3 +1,4 @@
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCTBoT8wTKSvIrbG6RgNlvqLlWPZ_lKDUg",
   authDomain: "missile-sim-842ce.firebaseapp.com",
@@ -8,73 +9,128 @@ const firebaseConfig = {
   measurementId: "G-TP2TJZHFFZ"
 };
 
-
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.database();
 
-let countdownInterval = null;
+// Global state
 let currentUser = null;
+let currentRole = null;
 
-document.getElementById("loginBtn").onclick = () => {
+// Google Sign-In
+document.getElementById("loginBtn").addEventListener("click", () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).then(result => {
-    currentUser = result.user;
-    document.getElementById("userInfo").innerText = `Welcome, ${currentUser.displayName}`;
-    document.querySelector(".controls").style.display = "block";
-    document.querySelector(".status").style.display = "block";
-    document.querySelector(".log").style.display = "block";
-    document.querySelector(".chat").style.display = "block";
-    document.querySelector(".role").style.display = "block";
-    loadRole();
-  });
-};
+  firebase.auth().signInWithPopup(provider)
+    .then(result => {
+      currentUser = result.user;
+      document.getElementById("userInfo").innerText = `Welcome, ${currentUser.displayName}`;
+      showPanels();
+    })
+    .catch(error => {
+      console.error("Sign-in error:", error);
+      alert("Sign-in failed. Check console for details.");
+    });
+});
 
+// Show UI panels
+function showPanels() {
+  document.querySelector(".role").style.display = "block";
+  document.querySelector(".controls").style.display = "block";
+  document.querySelector(".status").style.display = "block";
+  document.querySelector(".log").style.display = "block";
+  document.querySelector(".chat").style.display = "block";
+}
+
+// Set role
 function setRole() {
-  const role = document.getElementById("roleSelect").value;
-  db.ref("roles/" + currentUser.uid).set({ role });
-  document.getElementById("roleDisplay").innerText = `Role: ${role}`;
+  currentRole = document.getElementById("roleSelect").value;
+  document.getElementById("roleDisplay").innerText = `Role: ${currentRole}`;
 }
 
-function loadRole() {
-  db.ref("roles/" + currentUser.uid).once("value").then(snapshot => {
-    const role = snapshot.val()?.role;
-    if (role) {
-      document.getElementById("roleDisplay").innerText = `Role: ${role}`;
-    }
-  });
-}
-
+// Launch missile
 function launchMissile() {
   const armed = document.getElementById("armToggle").checked;
-  if (!armed) return alert("System not armed.");
-
   const lat = document.getElementById("lat").value;
   const lon = document.getElementById("lon").value;
-  if (!lat || !lon) return alert("Enter valid coordinates.");
+  const type = document.getElementById("missileType").value;
 
-  const missileType = document.getElementById("missileType").value;
+  if (!armed) {
+    alert("System not armed!");
+    return;
+  }
 
-  document.getElementById("armedStatus").textContent = "true";
-  document.getElementById("lastAction").textContent = "LAUNCH";
-  document.getElementById("timestamp").textContent = new Date().toLocaleString();
+  if (!lat || !lon) {
+    alert("Enter valid coordinates.");
+    return;
+  }
 
-  logMission("LAUNCH", missileType, lat, lon);
-  startCountdown(missileType, lat, lon);
+  const timestamp = new Date().toLocaleString();
+  const logEntry = `${timestamp} - ${currentRole} ${currentUser.displayName} launched ${type} missile at (${lat}, ${lon})`;
+
+  updateStatus("LAUNCH", armed, timestamp);
+  addToLog(logEntry);
+  triggerAnimation();
+
+  db.ref("log").push({ entry: logEntry });
 }
 
+// Abort mission
 function abortMission() {
-  clearInterval(countdownInterval);
-  document.getElementById("armedStatus").textContent = "false";
-  document.getElementById("lastAction").textContent = "ABORT";
-  document.getElementById("timestamp").textContent = new Date().toLocaleString();
-  document.getElementById("launchAnimation").innerHTML = "";
-  const lat = document.getElementById("lat").value;
-  const lon = document.getElementById("lon").value;
-  logMission("ABORT", "", lat, lon);
+  const timestamp = new Date().toLocaleString();
+  const logEntry = `${timestamp} - ${currentRole} ${currentUser.displayName} aborted mission`;
+
+  updateStatus("ABORT", false, timestamp);
+  addToLog(logEntry);
+
+  db.ref("log").push({ entry: logEntry });
 }
 
-function startCountdown(missileType, lat, lon) {
-  let timeLeft = 10;
+// Update status panel
+function updateStatus(action, armed, timestamp) {
+  document.getElementById("armedStatus").innerText = armed;
+  document.getElementById("lastAction").innerText = action;
+  document.getElementById("timestamp").innerText = timestamp;
+}
+
+// Add to mission log
+function addToLog(text) {
+  const li = document.createElement("li");
+  li.innerText = text;
+  document.getElementById("missionLog").appendChild(li);
+}
+
+// Trigger launch animation
+function triggerAnimation() {
   const anim = document.getElementById("launchAnimation");
-  anim.innerHTML = `<p>Countdown initiated for ${missileType} missile...</p><p
+  anim.innerText = "🚀 Missile Launched!";
+  anim.style.color = "red";
+  anim.style.fontSize = "24px";
+  setTimeout(() => {
+    anim.innerText = "";
+  }, 3000);
+}
+
+// Send chat message
+function sendMessage() {
+  const msg = document.getElementById("messageInput").value;
+  if (!msg.trim()) return;
+
+  const timestamp = new Date().toLocaleTimeString();
+  const message = `${timestamp} - ${currentRole} ${currentUser.displayName}: ${msg}`;
+
+  db.ref("chat").push({ message });
+  document.getElementById("messageInput").value = "";
+}
+
+// Listen for chat updates
+db.ref("chat").on("child_added", snapshot => {
+  const msg = snapshot.val().message;
+  const div = document.createElement("div");
+  div.innerText = msg;
+  document.getElementById("messages").appendChild(div);
+});
+
+// Load mission log on startup
+db.ref("log").on("child_added", snapshot => {
+  const entry = snapshot.val().entry;
+  addToLog(entry);
+});
