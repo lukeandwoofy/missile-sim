@@ -1,22 +1,51 @@
-let authenticated = false;
-let countdownInterval = null;
+const firebaseConfig = {
+  apiKey: "AIzaSyCTBoT8wTKSvIrbG6RgNlvqLlWPZ_lKDUg",
+  authDomain: "missile-sim-842ce.firebaseapp.com",
+  projectId: "missile-sim-842ce",
+  storageBucket: "missile-sim-842ce.firebasestorage.app",
+  messagingSenderId: "234662986434",
+  appId: "1:234662986434:web:e31d19755a02e09d43315b",
+  measurementId: "G-TP2TJZHFFZ"
+};
 
-function authenticate() {
-  const code = document.getElementById("accessCode").value;
-  if (code === "launch123") {
-    authenticated = true;
-    document.getElementById("authStatus").textContent = "UNLOCKED";
-    document.getElementById("authStatus").style.color = "#00ff88";
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let countdownInterval = null;
+let currentUser = null;
+
+document.getElementById("loginBtn").onclick = () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).then(result => {
+    currentUser = result.user;
+    document.getElementById("userInfo").innerText = `Welcome, ${currentUser.displayName}`;
     document.querySelector(".controls").style.display = "block";
     document.querySelector(".status").style.display = "block";
     document.querySelector(".log").style.display = "block";
-  } else {
-    alert("Invalid code.");
-  }
+    document.querySelector(".chat").style.display = "block";
+    document.querySelector(".role").style.display = "block";
+    loadRole();
+  });
+};
+
+function setRole() {
+  const role = document.getElementById("roleSelect").value;
+  db.ref("roles/" + currentUser.uid).set({ role });
+  document.getElementById("roleDisplay").innerText = `Role: ${role}`;
+}
+
+function loadRole() {
+  db.ref("roles/" + currentUser.uid).once("value").then(snapshot => {
+    const role = snapshot.val()?.role;
+    if (role) {
+      document.getElementById("roleDisplay").innerText = `Role: ${role}`;
+    }
+  });
 }
 
 function launchMissile() {
-  if (!authenticated) return alert("Access denied.");
   const armed = document.getElementById("armToggle").checked;
   if (!armed) return alert("System not armed.");
 
@@ -48,30 +77,4 @@ function abortMission() {
 function startCountdown(missileType, lat, lon) {
   let timeLeft = 10;
   const anim = document.getElementById("launchAnimation");
-  anim.innerHTML = `<p>Countdown initiated for ${missileType} missile...</p><p id="countdown">${timeLeft}</p>`;
-
-  countdownInterval = setInterval(() => {
-    timeLeft--;
-    document.getElementById("countdown").textContent = timeLeft;
-    if (timeLeft <= 0) {
-      clearInterval(countdownInterval);
-      executeLaunch(missileType, lat, lon);
-    }
-  }, 1000);
-}
-
-function executeLaunch(missileType, lat, lon) {
-  const anim = document.getElementById("launchAnimation");
-  anim.innerHTML = `
-    <p>🚀 ${missileType} missile launched to:<br><strong>${lat}, ${lon}</strong></p>
-    <div class="flash-bar"></div>
-    <p>💥 Impact simulated. Mission complete.</p>
-  `;
-}
-
-function logMission(action, type, lat, lon) {
-  const log = document.getElementById("missionLog");
-  const entry = document.createElement("li");
-  entry.textContent = `${new Date().toLocaleString()} — ${action} ${type ? type : ""} → ${lat}, ${lon}`;
-  log.prepend(entry);
-}
+  anim.innerHTML = `<p>Countdown initiated for ${missileType} missile...</p><p
