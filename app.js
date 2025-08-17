@@ -1,9 +1,9 @@
-// Initialize Firebase
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCTBoT8wTKSvIrbG6RgNlvqLlWPZ_lKDUg",
   authDomain: "missile-sim-842ce.firebaseapp.com",
   projectId: "missile-sim-842ce",
-  storageBucket: "missile-sim-842ce.firebasestorage.app",
+  storageBucket: "missile-sim-842ce.appspot.com",
   messagingSenderId: "234662986434",
   appId: "1:234662986434:web:e31d19755a02e09d43315b",
   measurementId: "G-TP2TJZHFFZ"
@@ -11,10 +11,10 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
-// Global state
 let currentUser = null;
+let currentName = null;
 let currentRole = null;
+let countdownInterval = null;
 
 // Sign Up
 function signUp() {
@@ -29,12 +29,10 @@ function signUp() {
 
   firebase.auth().createUserWithEmailAndPassword(email, password)
     .then(userCredential => {
-      const uid = userCredential.user.uid;
       currentUser = userCredential.user;
-
-      // Save display name in database
+      const uid = currentUser.uid;
+      currentName = name;
       db.ref("users/" + uid).set({ name });
-
       document.getElementById("userInfo").innerText = `Welcome, ${name}`;
       showPanels();
     })
@@ -49,15 +47,18 @@ function logIn() {
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
 
+  if (!email || !password) {
+    alert("Please enter both email and password.");
+    return;
+  }
+
   firebase.auth().signInWithEmailAndPassword(email, password)
     .then(userCredential => {
-      const uid = userCredential.user.uid;
       currentUser = userCredential.user;
-
-      // Fetch display name
+      const uid = currentUser.uid;
       db.ref("users/" + uid).once("value").then(snapshot => {
-        const name = snapshot.val().name;
-        document.getElementById("userInfo").innerText = `Welcome, ${name}`;
+        currentName = snapshot.val()?.name || "Commander";
+        document.getElementById("userInfo").innerText = `Welcome, ${currentName}`;
         showPanels();
       });
     })
@@ -100,22 +101,24 @@ function launchMissile() {
   }
 
   const timestamp = new Date().toLocaleString();
-  const logEntry = `${timestamp} - ${currentRole} ${currentUser.displayName} launched ${type} missile at (${lat}, ${lon})`;
+  const logEntry = `${timestamp} - ${currentRole} ${currentName} launched ${type} missile at (${lat}, ${lon})`;
 
   updateStatus("LAUNCH", armed, timestamp);
   addToLog(logEntry);
-  triggerAnimation();
+  triggerCountdown(type, lat, lon);
 
   db.ref("log").push({ entry: logEntry });
 }
 
 // Abort mission
 function abortMission() {
+  clearInterval(countdownInterval);
   const timestamp = new Date().toLocaleString();
-  const logEntry = `${timestamp} - ${currentRole} ${currentUser.displayName} aborted mission`;
+  const logEntry = `${timestamp} - ${currentRole} ${currentName} aborted mission`;
 
   updateStatus("ABORT", false, timestamp);
   addToLog(logEntry);
+  document.getElementById("launchAnimation").innerHTML = "";
 
   db.ref("log").push({ entry: logEntry });
 }
@@ -134,15 +137,29 @@ function addToLog(text) {
   document.getElementById("missionLog").appendChild(li);
 }
 
-// Trigger launch animation
-function triggerAnimation() {
+// Countdown and launch animation
+function triggerCountdown(type, lat, lon) {
+  let timeLeft = 10;
   const anim = document.getElementById("launchAnimation");
-  anim.innerText = "🚀 Missile Launched!";
-  anim.style.color = "red";
-  anim.style.fontSize = "24px";
-  setTimeout(() => {
-    anim.innerText = "";
-  }, 3000);
+  anim.innerHTML = `<p>Countdown initiated for ${type} missile...</p><p id="countdown">${timeLeft}</p>`;
+
+  countdownInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("countdown").textContent = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(countdownInterval);
+      executeLaunch(type, lat, lon);
+    }
+  }, 1000);
+}
+
+function executeLaunch(type, lat, lon) {
+  const anim = document.getElementById("launchAnimation");
+  anim.innerHTML = `
+    <p>🚀 ${type} missile launched to:<br><strong>${lat}, ${lon}</strong></p>
+    <div class="flash-bar"></div>
+    <p>💥 Impact simulated. Mission complete.</p>
+  `;
 }
 
 // Send chat message
@@ -151,7 +168,7 @@ function sendMessage() {
   if (!msg.trim()) return;
 
   const timestamp = new Date().toLocaleTimeString();
-  const message = `${timestamp} - ${currentRole} ${currentUser.displayName}: ${msg}`;
+  const message = `${timestamp} - ${currentRole} ${currentName}: ${msg}`;
 
   db.ref("chat").push({ message });
   document.getElementById("messageInput").value = "";
