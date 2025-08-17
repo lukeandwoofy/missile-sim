@@ -1,0 +1,73 @@
+body {
+  background-color: #0b1113;
+  color: #c6ffb3;
+  font-family: 'Courier New', monospace;
+  padding: 20px;
+}
+
+.console {
+  max-width: 800px;
+  margin: auto;
+  border: 2px solid #2f4f4f;
+  padding: 20px;
+  background-color: #1a1f22;
+}
+
+h1 {
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+}
+
+input, button {
+  margin: 5px 0;
+  padding: 8px;
+  background-color: #0f1a1d;
+  color: #c6ffb3;
+  border: 1px solid #25474f;
+  width: 100%;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #25474f;
+}
+
+.auth, .controls, .status {
+  margin-bottom: 20px;
+}
+
+#authStatus {
+  margin-left: 10px;
+  font-weight: bold;
+  color: #ff3b3b;
+}
+
+#launchAnimation {
+  margin-top: 20px;
+  height: 200px;
+  text-align: center;
+  font-size: 18px;
+  color: #ffce6b;
+}
+
+@keyframes flash {
+  0% { background: red; }
+  50% { background: yellow; }
+  100% { background: red; }
+}
+
+.flash-bar {
+  width: 100%;
+  height: 10px;
+  background: red;
+  animation: flash 1s infinite;
+}
