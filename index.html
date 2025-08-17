@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Missile Launch Console</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
   <div class="console">
@@ -25,9 +24,10 @@
         <option value="Orbital">Orbital</option>
       </select>
 
-      <label>Target Coordinates:</label>
-      <div id="map"></div>
-      <p>Selected: <span id="selectedCoords">None</span></p>
+      <label>Target Latitude:</label>
+      <input type="number" id="lat" step="0.000001" placeholder="e.g. 38.8977">
+      <label>Target Longitude:</label>
+      <input type="number" id="lon" step="0.000001" placeholder="e.g. -77.0365">
 
       <label>Arm System:</label>
       <input type="checkbox" id="armToggle">
@@ -51,7 +51,6 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
