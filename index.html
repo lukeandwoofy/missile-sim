@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Strategic Missile Command</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
 
   <!-- Firebase SDK (compat versions for browser use) -->
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
@@ -15,53 +16,52 @@
   <div class="console">
     <h1>STRATEGIC MISSILE COMMAND</h1>
 
-<!-- Authentication -->
-<div id="authSection">
-  <h2>Sign Up</h2>
-  <input type="text" id="signupName" placeholder="Your Name">
-  <input type="email" id="signupEmail" placeholder="Email">
-  <input type="password" id="signupPassword" placeholder="Password">
-  <button onclick="signUp()">Sign Up</button>
+    <!-- Authentication -->
+    <div id="authSection">
+      <h2>Sign Up</h2>
+      <input type="text" id="signupName" placeholder="Your Name" />
+      <input type="email" id="signupEmail" placeholder="Email" />
+      <input type="password" id="signupPassword" placeholder="Password" />
+      <button onclick="signUp()">Sign Up</button>
 
-  <h2>Log In</h2>
-  <input type="email" id="loginEmail" placeholder="Email">
-  <input type="password" id="loginPassword" placeholder="Password">
-  <button onclick="logIn()">Log In</button>
+      <h2>Log In</h2>
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button onclick="logIn()">Log In</button>
 
-  <div id="userInfo"></div>
-</div>
+      <div id="userInfo"></div>
+    </div>
 
     <!-- Role Selection -->
     <div class="role" style="display:none;">
-      <label>Select Role:</label>
+      <h2>Select Role</h2>
       <select id="roleSelect">
         <option value="President">President</option>
         <option value="General">General</option>
         <option value="Commander">Commander</option>
       </select>
       <button onclick="setRole()">Set Role</button>
-      <p id="roleDisplay"></p>
+      <p id="roleDisplay">Role: None</p>
     </div>
 
-    <!-- Launch Controls -->
+    <!-- Missile Controls -->
     <div class="controls" style="display:none;">
-      <label>Missile Type:</label>
+      <h2>Missile Controls</h2>
+      <label>
+        <input type="checkbox" id="armToggle" />
+        Arm System
+      </label>
+      <br />
+      <input type="text" id="lat" placeholder="Latitude" />
+      <input type="text" id="lon" placeholder="Longitude" />
       <select id="missileType">
         <option value="Tactical">Tactical</option>
         <option value="Strategic">Strategic</option>
         <option value="Orbital">Orbital</option>
       </select>
-
-      <label>Target Latitude:</label>
-      <input type="number" id="lat" step="0.000001" placeholder="e.g. 38.8977">
-      <label>Target Longitude:</label>
-      <input type="number" id="lon" step="0.000001" placeholder="e.g. -77.0365">
-
-      <label>Arm System:</label>
-      <input type="checkbox" id="armToggle">
-
-      <button onclick="launchMissile()">LAUNCH</button>
-      <button onclick="abortMission()">ABORT</button>
+      <br />
+      <button onclick="launchMissile()">Launch Missile</button>
+      <button onclick="abortMission()">Abort Mission</button>
     </div>
 
     <!-- Status Panel -->
@@ -73,7 +73,7 @@
     </div>
 
     <!-- Launch Animation -->
-    <div id="launchAnimation"></div>
+    <div id="launchAnimation" style="margin-top:20px;"></div>
 
     <!-- Mission Log -->
     <div class="log" style="display:none;">
@@ -84,14 +84,14 @@
     <!-- Real-Time Chat -->
     <div class="chat" style="display:none;">
       <h2>Command Chat</h2>
-      <div id="messages"></div>
-      <input type="text" id="messageInput" placeholder="Type your message...">
+      <div id="messages" style="border:1px solid #25474f; height:150px; overflow-y:auto; padding:5px;"></div>
+      <input type="text" id="messageInput" placeholder="Type your message..." />
       <button onclick="sendMessage()">Send</button>
     </div>
   </div>
 
   <!-- App Logic -->
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 
   <!-- Service Worker Registration -->
   <script>
